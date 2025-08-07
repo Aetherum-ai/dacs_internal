@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+    <title>DACS Simulator</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{{ url_for('index') }}">DACS Calculation</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('credit_score') }}">Credit Score, AUM & LANW</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('vol_score') }}">Volatility Score, Asset Quality Matrix</a>
+              </li>
+              
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class= "divcontent">
+
+        <h2 style="text-align: center;">Volatility Score:</h2>
+        <p class = "divcontenttext">
+            With the goal of serving users with significant cryptocurrency holdings, it is vital to be able to 
+            monitor the very volatile cryptocurrency price behavior
+            and maintain optimal risk. Subsequently, two components of the DACS were 
+            engineered to properly evaluate these crypto assets: the volatility score and asset quality score. With 
+            the  detailed  calculations  of  both  scores  shown  below,  the  volatility  score  is  made  to  appropriately 
+            evaluate a cryptocurrencies volatility relative to a crypto market index. The market index used is the 
+            Total  Crypto  Market  Capitalization  (ticker:  TOTAL1  from  coinmarketcap.com).  The  Total  Crypto 
+            Market Capitalization is the total comprehensive market capitalization of the cryptocurrency market. 
+            Essentially, the volatility score measures the deviation of a portfolio/cryptocurrency's volatility against 
+            a market index while also acknowledging how correlated they are. It is important to note that the volatility score
+            is designed to measure short-term volatility which means that the volatility score is calculated with data ranging from a
+            maximum 1 year. At this time, it is still in discussion whether to use data ranging from present - 3 months / 6 months or 1 year
+        </p>
+        <h6>
+        \[
+        \text{Volatility Score} =  \left( \text{Relative Volatility} \cdot \left( 1 - |\beta| \right) \right) + \left( \text{Mean}(|a - m|) \right)
+        \]
+
+        \[
+        \text{Final Volatility Score} = 
+        \begin{cases}
+          \text{Final Volatility Score} = 1 \text{if } \text{Volatility Score } \leq 0.7 \\
+          \text{Final Volatility Score} = \text{Volatility Score} \text{if } \text{Volatility Score} \leq 1 \text{ and } \geq 0.7 \\
+          \text{Final Volatility Score} = \frac{1}{\text{Volatility Score}} \text{Volatility Score} > 1 \\ 
+        \end{cases}
+        \]
+        
+        Where:
+        
+        \[
+        \text{Relative Volatility} = \frac{\text{Normalized}(\sigma_a)}{\text{Normalized}(\sigma_m)}
+        \]
+        
+        Normalized \( \sigma_a \) denotes the normalized standard deviation of the asset \( a \)’s daily closing prices over a specified period.
+        
+        Normalized \( \sigma_m \) denotes the normalized standard deviation of the selected market index closing market capitalization / price over the same time.
+        
+        \[
+        \beta = \frac{\text{Covariance}(R_a, R_m)}{\text{Variance}(R_m)}
+        \]
+        
+        \( R_a \) is the returns of the asset over a specified period.
+        
+        \( R_m \) is the standard deviation of the returns of the market index over the same said period.
+        
+        \[
+        \text{Mean}(|a - m|) = \frac{1}{n} \sum \left| \text{Normalized}(a) - \text{Normalized}(m) \right|
+        \]
+        </h6>
+        <p class="divcontenttext"> The 3 cases for the final volatility score represent the 3 different values we can get <br>
+          - The first case with volatility score < 0.7 is the best score which is achieved by holding a large amount in non-volatile coins 
+          or stablecoins <br>
+          - The second case with volatility score <= 1 and >= 0.7 is a good score which is achieved by holding a mix of non-volatile coins <br>
+          - The third case is the worst case where the volatility score is greater than 1 i.e XRP. It penalizes holding very volatile coins.
+        </p>
+
+        <p class = "divcontenttext">
+            The Volatility Score can be calculated on both individual coins and portfolios. Below is a dataframe of several
+            notable volatility scores of cryptocurrencies (updated as of July 24 2025) (The higher the volatility score, the worse it is). 
+            The volatility score is calculated as a portfolio in a whole where the parameters inputed into the equation are the portfolio numbers and not 
+            a weighted sum of the coins like how asset quality is calculated. An overall portfolio volatility score of less than 0.5 achieves a full score:
+        </p>
+        <img src="{{ url_for('static', filename='images/vol_score_data.png') }}" alt="Volatility Score Data"
+        style="display: block; margin: auto; height: 400px;">
+
+        <br>
+
+        <h2 style="text-align: center;">Asset Quality Score:</h2>
+        <p class = "divcontenttext">
+        While the volatility score compares the short-term volatility of a cryptocurrency/portfolio against a market index, 
+        the Asset Quality score is designed to measure the likelihood a cryptocurrency will retain its value in 
+        the future based on its past returns and prices compared to a market index. Therefore, the Asset Quality score
+        uses price data ranging from the inception of the coin to the present. The market index used for 
+        the Asset Quality is Bitcoin. Therefore, the asset quality asses consistency of returns, how correlated 
+        a portfolio / cryptocurrency is to the market index and the plausibility of the returns. Plausibility of 
+        returns  evaluates  whether  the  return  of  the  asset  is  reasonable  compared  to  the  price  behavior  of 
+        Bitcoin. If the asset evaluated aligns with the market sentiment trend wherein the market shows strong 
+        upward  /downward  movement  and  the  asset  follows  suit,  then  the  asset  quality  will  score  higher 
+        thereby evaluating a higher likelihood for continued and sustained returns. Likewise, this methodology 
+        will penalize coins that have significantly positive movements but are not correlated to the market. 
+
+        Unlike the volatility score, we are not gonna use the formula to calculate an overall score for a portfolio since by
+        the methodology, the asset quality score is designed to be calculated per coin not per portfolio. Therefore, the final asset
+        quality score is a weighted sum of the individual coin's asset quality scores with the weight being the percentage owned by the user.
+        <strong>The main problem with asset quality as of now is that asset quality wrongly assesses high-market cap meme coins as good coins
+          because the high-market cap meme coins have had comparatively much better returns than Bitcoin and have not experienced as much drawdown
+          as expected. For this, coins should be bounded by values [a,b] that signify the assets of the best quality. We can see why in the visualizations
+          section below:
+        </strong>
+        </p>
+        <img src="{{ url_for('static', filename='images/aqm_score.png') }}" alt="AQM Score Data"
+        style="display: block; margin: auto; height: 400px;">
+
+
+          <h6>
+            \[
+            \text{Asset Quality} =  \frac{1}{t}[\left( \text{Sharpe Ratio} \cdot R^2 \right) +  \cdot \text{Sortino Ratio}]
+            \]
+            
+            Where:
+            
+          \( t \) is the difference in years from the launch of the coin to the inception of Bitcoin(2009)
+            
+            \[
+            \text{Sharpe Ratio} = \frac{\mathbb{E}[R_a - R_f]}{\sigma_{R_a}}
+            \]
+            
+            \( R_a \) represents the return of the asset and \( R_f \) represents the “risk-free” rate of return.
+            
+            \( \sigma_{R_a} \) is the standard deviation of the asset's returns.
+            
+            \[
+            R^2 = \left( \text{Corr}(a, m) \right)^2
+            \]
+            
+            \( a \) is the asset prices and \( m \) represents the market prices. \( R^2 \) is aimed to measure how much of the variance in an asset’s price can be attributed to the variance of the market.
+            
+            \[
+            \text{Sortino Ratio} = \frac{\mathbb{E}[R_a - R_f]}{\sigma_d}
+            \]
+            
+            \( R_a \) represents the return of the asset and \( R_f \) represents the “risk-free” rate of return.
+            
+            \( \sigma_d \) is the standard deviation of the downside risk of the asset — that is, the standard deviation of all returns that are below 0.
+          </h6>
+      </div>
+
+      <div class="divcontent"> <!-- Visualizations Div -->
+        <h5 style="text-align: center;"> Visualizations:<h5>
+          <p class = "divcontenttext">This section is the visualizations section to get a better understanding of what the volatility score and asset quality are measuring. The chart simulates
+          a $100,000 investment from [start date] to [end date] in the selected coin and indexes (BTC and Total MarketCap Price):
+          simply select the coin to visualize and select the start date and end date. <strong>Because of payed API limitations and data retrieval issues,
+            as of now, the data for total marketcap extends for a year. The last time the data retrieval code was run was on July 24, 2025. Therefore, 
+            the end date is limited to July 24, 2025. The start date can be set to any date before that. Setting an end date > July 24, 2025 will result in an error.
+            To see the data extending to the maximum time to the launch of whatever coin is selected, do not enter any dates to the date input cell.
+          </strong>
+        </p>
+        <form method="POST">
+          <label for="coin">Select a coin:</label>
+          <select name="coin" id="coin">
+            {% for coin in coins %}
+              <option value="{{ coin }}" {% if selected_coin == coin %}selected{% endif %}>{{ coin }}</option>
+            {% endfor %}
+          </select>
+      
+          <br><br>
+      
+          <label for="start_date">Start date:</label>
+          <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
+      
+          <label for="end_date">End date:</label>
+          <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+      
+          <br><br>
+          <button type="submit">View Price Chart</button>
+        </form>
+      
+        {% if price_img %}
+          <h2>Price Trend for {{ selected_coin }}</h2>
+          <img src="data:image/png;base64,{{ price_img }}" alt="Price Chart" style="max-width: 100%;">
+        {% endif %}
+        <h4 style="text-align: center;">Volatility Score Explanation</h4>
+        <p class="divcontenttext">Looking at price data limiting to <strong>a year</strong> you can see that coins that are <strong>higher</strong> up in the volatility score table (worse) i.e XRP, HBAR
+        have significant deviations and significant price movements compared to the the total market cap for the year which presents a lot of risk. 
+        Coins <strong>lower</strong> in the table, i.e BNB, USDC have very small price movements which lowers their risk levels.</p>
+        
+        <h4 style="text-align: center;">Asset Quality Explanation</h4>
+        <p class="divcontenttext">Looking at the maximum price range for the selected coin, you can see that coins <strong>higher</strong> in
+        the asset quality table excluding USDC and BTC which are hardcoded to return a value of 1. DOGE and SHIB have outperformed Bitcoin since their
+        launch. <strong>Though there are significant price movements and erratic price behavior, the volatility score has already taken this into account.
+        However, nonetheless, the asset quality score still ranks these meme coins higher than other coins that should be ranked higher. Because of this, 
+        I believe there should be a small adjustment to the Asset Quality Score equation to penalize just meme coins. i.e if the coin is a memecoin, the 
+        asset quality should penalize it by a factor of (1/x) where x is yet to be determined.</strong> Looking at coins <strong>lower</strong> on the list
+        i.e ARB and COMP which have negative asset quality values, we can see that the price deviates from Bitcoin throughout its time in the market <strong>which
+        should suggest poor asset quality.</strong> BNB on the other hand, which ranks just below SHIB, shows similar price patterns to the memecoins. Another way we
+        could adjust the asset quality score is to use the rolling averages of both Bitcoin and the coin in question, the greater the deviation of both, the more
+        the asset quality for that coin should be penalized. 
+         Looking at coins <strong>in the middle</strong> of the table, i.e SAND, XRP and AVAX we can see that they have 
+        had stable comparatively stable performance and since launch and have rarely had drawdown lower than bitcoin which signifies better asset quality. Think
+        of the Bitcoin line (price movements) as the moving treshold to measure asset quality. If the asset consistently follows the Bitcoin trend or goes above it,
+        then the asset quality score should return a better score. If the asset consistently deviates downwards from the Bitcoin trend, then the asset quality score should 
+        return a worse score. The more recently the coin was launched, the more it will be penalized (coins just launched have higher risk).
+
+        
+        </p>
+          
+
+      </div><!-- End of Visualizations Div-->
+      
+
+      
+</body>
+</html>
