@@ -6,7 +6,10 @@ import yfinance as yf
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import csv
+from dotenv import load_dotenv
 
+
+load_dotenv()
 # Step 1: Generate all data
 coin_dict = {
     "USDC": fetch_price("USDC", period="7y"),
@@ -35,9 +38,17 @@ coin_dict = {
     "HBAR": fetch_price("HBAR", period="6y")
 }
 
+if not CMC_API_KEY:
+    raise RuntimeError("Missing CoinMarketCap API key. Set COINMARKETCAP_API_KEY in your environment variables.")
+CMC_API_KEY = os.getenv("COINMARKETCAP_API_KEY")
 
-# API KEY:
-api_key = 'c1bde33f-30b5-4dc1-8661-3af9b8bfab4e'
+def cmc_quote(symbol: str):
+    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
+    headers = {"X-CMC_PRO_API_KEY": CMC_API_KEY}
+    params = {"symbol": symbol}
+    r = requests.get(url, headers=headers, params=params, timeout=10)
+    r.raise_for_status()
+    return r.json()
 
 # One year date range (adjust as needed)
 start_date = (date.today() - relativedelta(days = 363)).strftime('%Y-%m-%d')

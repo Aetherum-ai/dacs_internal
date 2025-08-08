@@ -177,3 +177,4 @@ widgetsnbextension==4.0.13
 wrapt==1.17.0
 xyzservices==2023.10.1
 yfinance==0.2.65
+gunicorn
