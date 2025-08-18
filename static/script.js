@@ -33,4 +33,10 @@ function bindFormattedNumberInput(inputId, min, max) {
 
 bindFormattedNumberInput("aum_input", 10000, 1000000);
 bindFormattedNumberInput("cryptoassets", 0, 1000000);
-bindFormattedNumberInput("credit_input", 0, 1000000);
+bindFormattedNumberInput("cash_input", 0, 1000000);
+bindFormattedNumberInput("ar_input", 0, 1000000);
+bindFormattedNumberInput("blue_chip_equities_input", 0, 1000000);
+bindFormattedNumberInput("mid_cap_equities_input", 0, 1000000);
+bindFormattedNumberInput("real_estate_input", 0, 1000000);
+bindFormattedNumberInput("bonds_input", 0, 1000000);
+bindFormattedNumberInput("commodities_input", 0, 1000000);

@@ -124,7 +124,6 @@ def build_portfolio(coin_dict, weights, investment_amount):
     """
 
     weights = np.array(weights)
-    coin_names = list(coin_dict.keys())
     coins = list(coin_dict.values())
 
     # Determine 1-year window
