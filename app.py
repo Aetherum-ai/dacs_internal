@@ -138,6 +138,13 @@ def index():
 
         score_lanw = eval_lanw(holdings_dict, other_assets, weights['lanw'], aum)
 
+        #rounding 
+        score_credit = round(score_credit, 2)
+        score_aum = round(score_aum, 2)
+        score_vol_score = round(score_vol_score, 2)
+        score_aqm_score = round(score_aqm_score, 2)
+        score_lanw = round(score_lanw, 2)
+        
 
 
 
@@ -217,7 +224,7 @@ def vol_score():
                         local_index_dict[key].index = pd.to_datetime(local_index_dict[key].index)
                         local_index_dict[key] = local_index_dict[key].loc[coin_start:coin_end]
 
-            price_img = plot_price(coin_df, index_dict)
+            price_img = plot_price(coin_df, local_index_dict)
         except Exception as e:
             print(f"Plotting failed: {e}")
 
