@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 
 # Load index data
+
 btc_df = pd.read_csv('btc_data.csv', parse_dates=True, index_col='Date')
 marketcap_df = pd.read_csv('total_marketcap_data.csv', parse_dates=True, index_col='Date')
 
@@ -224,4 +225,4 @@ def vol_score():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug = False)
