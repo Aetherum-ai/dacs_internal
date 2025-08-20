@@ -118,19 +118,21 @@ def index():
         "Cash", "Accounts_Receivables", "Blue_Chip_Equities", 
         "Mid_Cap_Equities", "Real_Estate", "Bonds", "Commodities"
         ]
+        
         other_assets = {}
         for asset in traditional_assets:
             checkbox_name = f"other_{asset}"
             amount_name = f"amount_{asset}"
 
             if checkbox_name in request.form:
+                raw_val = request.form.get(amount_name, "0").replace(",", "")
+                print("Raw input for", asset, ":", request.form.get(amount_name))
                 try:
-                    amount = float(request.form.get(amount_name, 0))
+                    amount = float(raw_val)
                     if amount > 0:
                         other_assets[asset.replace("_", " ")] = amount
                 except ValueError:
-                    continue  # skip invalid inputs
-
+                    continue
 
         holdings_dict = get_user_holdings(selected_weights, coin_dict, total_invested)
 
