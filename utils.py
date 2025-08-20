@@ -498,16 +498,16 @@ coin_liquidity_classification = {
 
 other_asset_classifications = {
     1.0: [
-        "Cash", "Accounts Recievables" 
+        "Cash", "Accounts_Recievables" 
     ],
     0.85: [
-        "Blue Chip Equities"
+        "Blue_Chip_Equities"
     ], 
     0.80: [
-        "Mid-cap Equities"
+        "Mid_cap_Equities"
     ],
     0.30: [
-        "Real Estate", "Bonds", "Commodities"
+        "Real_Estate", "Bonds", "Commodities"
     ]
 }
 

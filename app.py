@@ -136,6 +136,9 @@ def index():
 
         score_lanw = eval_lanw(holdings_dict, other_assets, weights['lanw'], aum)
 
+
+
+
         # Final DACS Score:
         final_score = score_credit + score_aum + score_vol_score + score_aqm_score + score_lanw
 
