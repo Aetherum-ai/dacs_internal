@@ -500,20 +500,23 @@ def get_user_holdings(selected_weights, coin_dict, total_invested):
 
     return holdings_dict
 
-#Update New Coins
+# Liquidity-Adjusted Net worth:
+
+# Liquidity scores per coin:
 coin_liquidity_classification = {
     1.0:["USDC"],
     0.75: [
-        "BTC", "ETH", "BNB", "XRP", "SOL", "USDC", "ADA", "LINK", "AVAX"
+        "BTC", "ETH", "BNB", "XRP", "SOL", "USDC", "ADA", "LINK", "AVAX", "DAI", "LTC"
     ],
     0.65: [
-        "MATIC", "UNI", "ATOM", "ARB", "NEAR", "HBAR", "ALGO", "XTZ", "AAVE"
+        "MATIC", "UNI", "ATOM", "ARB", "NEAR", "HBAR", "ALGO", "XTZ", "AAVE", "SUI", "UNI", "TAO", "FET", "INJ"
     ],
     0.35: [
-         "MANA", "SAND", "ENJ", "DOGE", "SHIB"
+         "MANA", "SAND", "ENJ", "DOGE", "SHIB", "FLOKI", "HYPE", "BONK", "WIF"
     ]
 }
 
+# Other Liquidty scores per asset class:
 other_asset_classifications = {
     1.0: [
         "Cash", "Accounts Receivables" 
@@ -562,3 +565,26 @@ def eval_lanw(holdings_dict, other_assets, weight_lanw, total_aum):
     lanw_score = (total_lanw / total_aum)
     
     return lanw_score * weight_lanw
+
+# Volatility Premium:
+
+def eval_volatility_premium(vol_score, vol_score_weight):
+    """
+    Calculates Volatility Premium 
+    Inputs:
+    - Volatility Score
+    - Volatility Score weight
+
+    Returns:
+    - Volatility Premium (%)
+    """
+    vol_prem = 0
+    if vol_score == 1 * vol_score_weight :
+        vol_prem = 0
+    elif (vol_score < 1 * vol_score_weight) and (vol_score >= 0.75 * vol_score_weight) :
+        vol_prem = 0.25
+    elif (vol_score < 0.75 * vol_score_weight ) and (vol_score >= 0.5 * vol_score_weight) :
+        vol_prem = 0.5
+    elif (vol_score < 0.5 * vol_score_weight):
+        vol_prem = 1
+    return vol_prem

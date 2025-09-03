@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from utils import eval_credit_score, eval_aum, build_portfolio
 from utils import calculate_volatility_score, eval_vol_score, eval_aqm
 from utils import get_user_holdings, eval_lanw
+from utils import eval_volatility_premium
 from utils import plot_price
 import pickle
 import pandas as pd
@@ -40,7 +41,7 @@ def index():
     score_aqm_score = None
     score_lanw = None
     portfolio_trend = None
-
+    vol_prem = None
 
     with open("coin_data.pkl", "rb") as f:
         coin_dict = pickle.load(f)
@@ -164,6 +165,10 @@ def index():
             df = df.loc[start_date:end_date]
             index_dict_1yr[name] = df
 
+        # Volatility Premium:
+        vol_prem = eval_volatility_premium(score_vol_score, weights['vol_score'])
+      
+
 
         portfolio_trend = plot_price(portfolio_viz, index_dict_1yr)
     return render_template(
@@ -174,6 +179,7 @@ def index():
         score_aqm_score = score_aqm_score,
         score_lanw = score_lanw,
         final_score = final_score,
+        vol_prem = vol_prem,
         coins = coins,
         weights = weights,
         portfolio_trend = portfolio_trend

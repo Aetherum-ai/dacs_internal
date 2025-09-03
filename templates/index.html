@@ -163,6 +163,7 @@
 <p>Asset Quality Score: {{ score_aqm_score }} / {{ weights["aqm"] }}</p>
 <p>Liquidity-Adjusted Net Worth: {{ score_lanw }} / {{ weights["lanw"] }}</p>
 <p><strong>Final DACS Score: {{ final_score }} / {{ weights["credit"] + weights["aum"] + weights["vol_score"] + weights["aqm"] + weights["lanw"] }}</p></strong>
+<p><strong>Volatility Premium: {{ vol_prem }} %</p></strong>
 
 {% if portfolio_trend %}
 <h2>Portfolio vs Market Index</h2>

@@ -33,7 +33,7 @@
                 <a class="nav-link active" aria-current="page" href="{{ url_for('credit_score') }}">Credit Score, AUM & LANW</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('vol_score') }}">Volatility Score, Asset Quality Matrix</a>
+                <a class="nav-link" href="{{ url_for('vol_score') }}">Volatility Score, Asset Quality Matrix and Volatility Premium</a>
               </li>
               
             </ul>
@@ -43,7 +43,7 @@
 
       <div class= "divcontent">
 
-        <h2 style="text-align: center;">Volatility Score:</h2>
+        <h2 style="text-align: center;">Volatility Score & Volatility Premium:</h2>
         <p class = "divcontenttext">
             With the goal of serving users with significant cryptocurrency holdings, it is vital to be able to 
             monitor the very volatile cryptocurrency price behavior
@@ -111,6 +111,15 @@
         style="display: block; margin: auto; height: 400px;">
 
         <br>
+        <h2 style="text-align: center;">Voaltility Premium:</h2>
+        <p class = "divcontenttext">The max volatility premium is 1% on top of the interest rate with increments of 25 basis points. 
+          What we can do is go from 0 to 0.25 to 0.5 to 0.75 to 1% basis points where 0 is the best possible portfolio. Essentially, 
+          we can inherently use the volatility score portion of the DACS and treat it as a score where a volatility score of 100% will have 0% volatility premium,
+          a volatility score of 75% - 100% will have a 0.25% premium, 
+          a volatility score of 50%-75% will have a 0.5% premium, a volatility score below 50% (really risky) will have a 1% volatility premium. This is a very
+          simple approach to computing volatility premium but I believe that the volatility premium should have a close relationship to the volatility score.
+          </p>
+
 
         <h2 style="text-align: center;">Asset Quality Score:</h2>
         <p class = "divcontenttext">
