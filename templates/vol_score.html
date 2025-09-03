@@ -103,7 +103,7 @@
 
         <p class = "divcontenttext">
             The Volatility Score can be calculated on both individual coins and portfolios. Below is a dataframe of several
-            notable volatility scores of cryptocurrencies (updated as of July 24 2025) (The higher the volatility score, the worse it is). 
+            notable volatility scores of cryptocurrencies (updated as of September 3 2025) (The higher the volatility score, the worse it is). 
             The volatility score is calculated as a portfolio in a whole where the parameters inputed into the equation are the portfolio numbers and not 
             a weighted sum of the coins like how asset quality is calculated. An overall portfolio volatility score of less than 0.5 achieves a full score:
         </p>
@@ -129,24 +129,27 @@
         Unlike the volatility score, we are not gonna use the formula to calculate an overall score for a portfolio since by
         the methodology, the asset quality score is designed to be calculated per coin not per portfolio. Therefore, the final asset
         quality score is a weighted sum of the individual coin's asset quality scores with the weight being the percentage owned by the user.
-        <strong>The main problem with asset quality as of now is that asset quality wrongly assesses high-market cap meme coins as good coins
-          because the high-market cap meme coins have had comparatively much better returns than Bitcoin and have not experienced as much drawdown
-          as expected. For this, coins should be bounded by values [a,b] that signify the assets of the best quality. We can see why in the visualizations
-          section below:
-        </strong>
+        Meme coins are going to be penalized by a factor of 1 / Volatility Score. The reason for this is because meme coins with a high marketcap
+        that are already established have outperformed Bitcoin and causes unexpected Asset Quality values (much higher because they outperform the market 
+        overtime consistently).
         </p>
         <img src="{{ url_for('static', filename='images/aqm_score.png') }}" alt="AQM Score Data"
         style="display: block; margin: auto; height: 400px;">
 
 
           <h6>
+            Asset Quality for <strong>non meme coins</strong>
             \[
-            \text{Asset Quality} =  \frac{1}{t}[\left( \text{Sharpe Ratio} \cdot R^2 \right) +  \cdot \text{Sortino Ratio}]
+            \text{Asset Quality} =  \frac{1}{e^{-\lambda t}}[\left( \text{Sharpe Ratio} \cdot R^2 \right) +  \cdot \text{Sortino Ratio}]
             \]
-            
+            Asset Quality for <strong>meme coins</strong>
+            \[
+            \text{Asset Quality} =  \frac{1}{e^{-\lambda t}} \cdot \frac{1}{\text{Volatility Score}}[\left( \text{Sharpe Ratio} \cdot R^2 \right) +  \cdot \text{Sortino Ratio}]
+            \]
             Where:
             
-          \( t \) is the difference in years from the launch of the coin to the inception of Bitcoin(2009)
+          \( t \) is the difference in years from the launch of the coin to the inception of Bitcoin(2009)  <br>
+           and \( \lambda \) is a constant, when testing I found that -0.5 is the most optimal value for \( \lambda \) to penalize newer coins fairly.
             
             \[
             \text{Sharpe Ratio} = \frac{\mathbb{E}[R_a - R_f]}{\sigma_{R_a}}
@@ -177,8 +180,8 @@
           <p class = "divcontenttext">This section is the visualizations section to get a better understanding of what the volatility score and asset quality are measuring. The chart simulates
           a $100,000 investment from [start date] to [end date] in the selected coin and indexes (BTC and Total MarketCap Price):
           simply select the coin to visualize and select the start date and end date. <strong>Because of payed API limitations and data retrieval issues,
-            as of now, the data for total marketcap extends for a year. The last time the data retrieval code was run was on July 24, 2025. Therefore, 
-            the end date is limited to July 24, 2025. The start date can be set to any date before that. Setting an end date > July 24, 2025 will result in an error.
+            as of now, the data for total marketcap extends for a year. The last time the data retrieval code was run was on September 3, 2025. Therefore, 
+            the end date is limited to September 3, 2025. The start date can be set to any date before that. Setting an end date greater than September 3, 2025 will result in an error.
             To see the data extending to the maximum time to the launch of whatever coin is selected, do not enter any dates to the date input cell.
           </strong>
         </p>
@@ -213,11 +216,7 @@
         
         <h4 style="text-align: center;">Asset Quality Explanation</h4>
         <p class="divcontenttext">Looking at the maximum price range for the selected coin, you can see that coins <strong>higher</strong> in
-        the asset quality table excluding USDC and BTC which are hardcoded to return a value of 1. DOGE and SHIB have outperformed Bitcoin since their
-        launch. <strong>Though there are significant price movements and erratic price behavior, the volatility score has already taken this into account.
-        However, nonetheless, the asset quality score still ranks these meme coins higher than other coins that should be ranked higher. Because of this, 
-        I believe there should be a small adjustment to the Asset Quality Score equation to penalize just meme coins. i.e if the coin is a memecoin, the 
-        asset quality should penalize it by a factor of (1/x) where x is yet to be determined.</strong> Looking at coins <strong>lower</strong> on the list
+        the asset quality table excluding USDC and BTC which are hardcoded to return a value of 1. 
         i.e ARB and COMP which have negative asset quality values, we can see that the price deviates from Bitcoin throughout its time in the market <strong>which
         should suggest poor asset quality.</strong> BNB on the other hand, which ranks just below SHIB, shows similar price patterns to the memecoins. Another way we
         could adjust the asset quality score is to use the rolling averages of both Bitcoin and the coin in question, the greater the deviation of both, the more

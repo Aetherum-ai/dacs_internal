@@ -255,30 +255,27 @@ def eval_aum(total_aum, age, score):
 
 
 # <!--Volatility score functions--!>
-def calculate_volatility_score_portfolio(portfolio_data, index_data, weight):
+def calculate_volatility_score(asset_data, index_data):
     """
-    Calculates the coin's volatility score compared to an index over the past 1 year.
-
+    Calculates the *raw* volatility score for a single coin compared to an index.
+    
     Inputs:
-    - portfolio_data: DataFrame with datetime index, and columns 'Close' and 'returns'
-    - index_data: DataFrame with datetime index, and columns 'Close' and 'returns'
-    - rel_vol_weight: weight for relative volatility
-    - beta_weight: weight for beta ratio
+    - asset_data: DataFrame with datetime index, 'Close' and 'returns'
+    - index_data: DataFrame with datetime index, 'Close' and 'returns'
 
     Returns:
-    - Volatility score (float): w1 * relative_volatility + w2 * beta_ratio
+    - raw volatility score (float)
     """
 
     # Ensure datetime index
-    portfolio_data.index = pd.to_datetime(portfolio_data.index)
+    asset_data.index = pd.to_datetime(asset_data.index)
     index_data.index = pd.to_datetime(index_data.index)
 
-
-    latest_date = min(portfolio_data.index.max(), index_data.index.max())
+    latest_date = min(asset_data.index.max(), index_data.index.max())
     one_year_ago = latest_date - pd.DateOffset(years=1)
 
     # Slice both dataframes to the last 1 year
-    portfolio_recent = portfolio_data[(portfolio_data.index >= one_year_ago) & (portfolio_data.index <= latest_date)]
+    portfolio_recent = asset_data[(asset_data.index >= one_year_ago) & (asset_data.index <= latest_date)]
     index_recent = index_data[(index_data.index >= one_year_ago) & (index_data.index <= latest_date)]
 
     # Align by common dates
@@ -296,9 +293,7 @@ def calculate_volatility_score_portfolio(portfolio_data, index_data, weight):
     # Relative Volatility
     coin_volatility = np.std(coin_norm)
     index_volatility = np.std(index_norm)
-    epsilon = 0.05  # small value to avoid divide-by-near-zero
-    relative_volatility = coin_volatility / index_volatility
-
+    relative_volatility = coin_volatility / index_volatility if index_volatility != 0 else 0
 
     # Beta Ratio
     index_var = np.var(index_aligned['returns'])
@@ -308,17 +303,32 @@ def calculate_volatility_score_portfolio(portfolio_data, index_data, weight):
     # Mean normalized difference
     avg_norm_diff = np.mean(np.abs(coin_norm - index_norm))
 
-    # Final Score
-    volatility_score = (relative_volatility * (1 - np.abs(beta_ratio))) + avg_norm_diff
+    # Raw score 
+    volatility_score = relative_volatility * (1 - np.abs(beta_ratio)) + avg_norm_diff
 
-    if any(x < epsilon for x in [coin_volatility, index_volatility, relative_volatility, volatility_score]):
-        return weight # ideal score (very very very unlikely)
-    if volatility_score < 0.7:
-        return weight # best score achieved by holding a large amount in non-volatile coins
-    if volatility_score <= 1 and volatility_score >= 0.7:
-        return volatility_score * weight # very good score
+    return volatility_score
+
+
+def eval_vol_score(vol_score, weight):
+    """
+    Evaluates a raw volatility score into a final bounded score based on thresholds.
     
-    return (1 / volatility_score) * weight # average volatility score
+    Inputs:
+    - vol_score: the raw volatility score (float)
+    - weight: Weight in the DACS
+
+
+    Returns:
+    - evaluated volatility score (float)
+    """
+    epsilon = 0.05
+    if vol_score < epsilon:
+        return weight  # idealized case
+    if vol_score < 0.7:
+        return weight  # best score achieved by very stable coins
+    if 0.7 <= vol_score <= 1:
+        return vol_score * weight  # good score, scale it
+    return (1 / vol_score) * weight  # normalize higher volatility
 
 # <!--Asset Quality Score--!>
 
@@ -360,7 +370,8 @@ def calc_r_squared(asset_df, index_df):
     r_squared = correlation ** 2
     return r_squared
 
-def calculate_AQM_coin(coin_dict, index_data):
+memecoins = {"DOGE", "SHIB", "FLOKI", "BONK", "WIF"}
+def calculate_AQM_coin(coin_dict, index_data, total_data):
     """ 
     Calculates the Asset Quality Matrix (AQM) for each coin.
 
@@ -377,6 +388,7 @@ def calculate_AQM_coin(coin_dict, index_data):
     BTC_YEAR = 2009
     aqm_scores = {}
 
+
     for name, coin_df in coin_dict.items():
 
         # Align dates
@@ -385,7 +397,7 @@ def calculate_AQM_coin(coin_dict, index_data):
         index_aligned = index_data.loc[common_dates]
 
         # BTC is 0 in AQM calc but will be changed to 1 
-        if (name == 'BTC' or name == 'USDC'):
+        if name in {"BTC", "USDC", "DAI"}:
             aqm_scores[name] = 1.0
             continue
 
@@ -410,13 +422,19 @@ def calculate_AQM_coin(coin_dict, index_data):
         r_squared = calc_r_squared(coin_aligned, index_aligned)
 
         # Time penalty
-        coin_year = math.ceil(coin_df.index.min().year)
+        coin_year = int(coin_df.index.min().year)
         t = max(coin_year - BTC_YEAR, 1)
+        t = np.exp(-0.5 * t) # Penalizes newer coins by exponential decay
 
         # AQM formula
-        aqm = (1 / t) * ((sharpe_ratio * r_squared) +  sortino_ratio)
+        aqm =  ((sharpe_ratio * r_squared) +  sortino_ratio)
+        aqm = t * aqm
+        aqm = aqm * 100 # Scale for interpretability
         
-
+        if name in memecoins:
+            vol_score = calculate_volatility_score(coin_aligned, total_data)
+            if vol_score > 0 :
+                aqm *= (1 / vol_score)
 
         aqm_scores[name] = aqm
 
@@ -482,7 +500,7 @@ def get_user_holdings(selected_weights, coin_dict, total_invested):
 
     return holdings_dict
 
-
+#Update New Coins
 coin_liquidity_classification = {
     1.0:["USDC"],
     0.75: [

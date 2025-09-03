@@ -9,7 +9,9 @@ import csv
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv(dotenv_path = ".env")
+CMC_API_KEY = os.getenv("COINMARKETCAP_API_KEY")
+
 # Step 1: Generate all data
 coin_dict = {
     "USDC": fetch_price("USDC", period="7y"),
@@ -35,12 +37,24 @@ coin_dict = {
     "ATOM": fetch_price("ATOM", period="5y"),
     "ARB": fetch_price("ARB11841", period="2y"),
     "NEAR": fetch_price("NEAR", period="5y"),
-    "HBAR": fetch_price("HBAR", period="6y")
+    "HBAR": fetch_price("HBAR", period="6y"),
+    "SUI": fetch_price("SUI20947", period="2y"),
+    "FLOKI": fetch_price("FLOKI", period="2y"),
+    "HYPE": fetch_price("HYPE32196", period="1y"),
+    "DAI": fetch_price("DAI", period="6y"),
+    "UNI": fetch_price("UNI7083", period="5y"),
+    "TAO": fetch_price("TAO22974", period="2y"),
+    "LTC": fetch_price("LTC", period="12y"),
+    "BONK": fetch_price("BONK", period="2y"),
+    "FET": fetch_price("FET", period="5y"),
+    "WIF": fetch_price("WIF", period="2y"),
+    "INJ": fetch_price("INJ", period="3y")
+
 }
+
 
 if not CMC_API_KEY:
     raise RuntimeError("Missing CoinMarketCap API key. Set COINMARKETCAP_API_KEY in your environment variables.")
-CMC_API_KEY = os.getenv("COINMARKETCAP_API_KEY")
 
 def cmc_quote(symbol: str):
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
@@ -54,12 +68,12 @@ def cmc_quote(symbol: str):
 start_date = (date.today() - relativedelta(days = 363)).strftime('%Y-%m-%d')
 end_date = date.today().strftime('%Y-%m-%d')
 
-total_data = fetch_marketcap_history(api_key, start_date, end_date)
+total_data = fetch_marketcap_history(CMC_API_KEY, start_date, end_date)
 btc_data = fetch_price("BTC", period="max")
 total_data.to_csv("total_marketcap_data.csv", index=True)
 
 # Calculate AQM for each coin
-aqm_data = calculate_AQM_coin(coin_dict, btc_data)
+aqm_data = calculate_AQM_coin(coin_dict, btc_data, total_data)
 with open("aqm_scores.csv", mode="w", newline="") as file:
     writer = csv.writer(file)
     writer.writerow(["coin", "aqm_score"]) 

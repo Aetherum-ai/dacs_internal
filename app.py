@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from utils import eval_credit_score, eval_aum, build_portfolio
-from utils import calculate_volatility_score_portfolio, eval_aqm
+from utils import calculate_volatility_score, eval_vol_score, eval_aqm
 from utils import get_user_holdings, eval_lanw
 from utils import plot_price
 import pickle
@@ -48,7 +48,8 @@ def index():
     coins = [
     "USDC", "BTC", "ETH", "ADA", "SOL", "DOT", "LINK", "AVAX", "DOGE", "SHIB",
     "UNI", "AAVE", "COMP", "MANA", "SAND", "ENJ", "ALGO", "XTZ", "BNB", "XRP",
-    "ATOM", "ARB", "NEAR", "HBAR"
+    "ATOM", "ARB", "NEAR", "HBAR", "SUI", "FLOKI", "HYPE", "DAI",
+     "TAO", "LTC", "BONK", "FET", "WIF", "INJ"
     ]
 
     if request.method == 'POST':
@@ -106,7 +107,8 @@ def index():
 
         # Volatility Score:
         total_data = pd.read_csv('total_marketcap_data.csv', index_col=0, parse_dates=True)
-        score_vol_score = calculate_volatility_score_portfolio(portfolio_df, total_data, weights['vol_score']) 
+        vol_score = calculate_volatility_score(portfolio_df, total_data)
+        score_vol_score = eval_vol_score(vol_score, weights['vol_score']) 
         
         # AQM Score:
         aqm_data_df = pd.read_csv('aqm_scores.csv', index_col=0)
@@ -235,6 +237,7 @@ def vol_score():
                            start_date=start_date,
                            end_date=end_date)
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug = False)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5050))
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=port, debug= 'true')
