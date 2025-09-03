@@ -33,7 +33,7 @@
                 <a class="nav-link active" aria-current="page" href="{{ url_for('credit_score') }}">Credit Score, AUM & LANW</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('vol_score') }}">Volatility Score, Asset Quality Matrix and Volatility Premium</a>
+                <a class="nav-link" href="{{ url_for('vol_score') }}">Volatility Score, Asset Quality Matrix & Volatility Premium</a>
               </li>
               
             </ul>
@@ -141,6 +141,10 @@
         Meme coins are going to be penalized by a factor of 1 / Volatility Score. The reason for this is because meme coins with a high marketcap
         that are already established have outperformed Bitcoin and causes unexpected Asset Quality values (much higher because they outperform the market 
         overtime consistently).
+
+        <br>
+        The \[\frac{1}{e^{-\lambda t}}] portion of the equation is designed to penalize newer coins more than older coins. Newer cryptocurrencies carry a riskier risk 
+        profile than older coins and it makes sense to penalize newer coins' asset quality.
         </p>
         <img src="{{ url_for('static', filename='images/aqm_score.png') }}" alt="AQM Score Data"
         style="display: block; margin: auto; height: 400px;">
